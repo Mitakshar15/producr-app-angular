@@ -1,0 +1,26 @@
+<mat-toolbar color="primary">
+  <div class="navbar-container">
+    <div class="navbar-brand">
+      <a routerLink="/">
+        <mat-icon>music_note</mat-icon>
+        <span>Producr</span>
+      </a>
+    </div>
+
+    <div class="navbar-links">
+      <a mat-button routerLink="/marketplace">Marketplace</a>
+      <a mat-button routerLink="/explore">Explore</a>
+      
+      <ng-container *ngIf="!isLoggedIn">
+        <a mat-button routerLink="/login">Login</a>
+        <a mat-raised-button color="accent" routerLink="/register">Sign Up</a>
+      </ng-container>
+      
+      <ng-container *ngIf="isLoggedIn">
+        <a mat-button routerLink="/dashboard">Dashboard</a>
+        <a mat-button routerLink="/upload">Upload</a>
+        <button mat-button (click)="logout()">Logout</button>
+      </ng-container>
+    </div>
+  </div>
+</mat-toolbar>

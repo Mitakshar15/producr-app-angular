@@ -1,0 +1,293 @@
+components:
+  schemas:
+    # ************************ Common Api Responses ******************
+    BaseApiResponse:
+      type: object
+      discriminator:
+        propertyName: respType
+
+    UserMgmtBaseApiResponse:
+      type: object
+      properties:
+      allOf:
+        - $ref: '#/components/schemas/BaseApiResponse'
+
+    # ************************ User Api Responses ******************
+    UserProfileResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          $ref: "#/components/schemas/UserProfileDto"
+      allOf:
+        - $ref: "#/components/schemas/UserMgmtBaseApiResponse"
+
+    AuthResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          $ref: '#/components/schemas/AuthResponseDto'
+      allOf:
+        - $ref: '#/components/schemas/UserMgmtBaseApiResponse'
+
+    ActivationResponse:
+      type: object
+      properties:
+      allOf:
+        - $ref: '#/components/schemas/UserMgmtBaseApiResponse'
+
+    ProfileResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          $ref: '#/components/schemas/UserProfileDto'
+      allOf:
+        - $ref: '#/components/schemas/UserMgmtBaseApiResponse'
+
+    ResetPasswordResponse:
+      type: object
+      properties:
+      allOf:
+        - $ref: "#/components/schemas/UserMgmtBaseApiResponse"
+
+
+    # ********************** User Api Requests ********************
+
+    SignUpRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        userName:
+          type: string
+          description: First name of the user.
+        password:
+          type: string
+          description: User's password.
+        email:
+          type: string
+          format: email
+          description: User's email address.
+
+
+    SignInRequest:
+      type: object
+      required:
+        -email
+        -password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    ActivationRequest:
+      type: object
+      required:
+        - activationCode
+      properties:
+        activationCode:
+          type: string
+
+    CreateRoleRequest:
+      type: object
+      required:
+        - role
+      properties:
+        role:
+          type: string
+
+    AssignRoleRequest:
+      type: object
+      properties:
+        roles:
+          type: array
+          items:
+            type: string
+
+    # *************** User Service DTO's **************
+    AuthResponseDto:
+      type: object
+      required:
+        -jwt
+      properties:
+        token:
+          type: string
+        userName:
+          type: string
+        provider:
+          type: string
+
+    UserProfileDto:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        provider:
+          type: string
+        profile:
+          type: object
+          $ref: "#/components/schemas/ProfileData"
+        role:
+          type: string
+        skills:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/SkillDto"
+        badges:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/BadgeDto"
+        createdAt:
+          type: string
+          format: local-date-time
+        noOfTracks:
+          type: integer
+
+
+
+
+    ProfileData:
+      type: object
+      properties:
+        displayName:
+          type: string
+        bio:
+          type: string
+        location:
+          type: string
+        profileImageUrl:
+          type: string
+        websiteUrl:
+          type: string
+        bannerImageUrl:
+          type: string
+        socialLinks:
+          type: object
+          additionalProperties:
+            type: string
+        genrePreferences:
+          type: array
+          uniqueItems:
+            type: string
+        equipmentInfo:
+          type: string
+        availabilityStatus:
+          type: string
+        collaborationPreference:
+          type: string
+
+
+    SkillDto:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        iconUrl:
+          type: string
+
+    BadgeDto:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: string
+        category:
+          type: string
+        achievementCriteria:
+          type: string
+
+    # ************************ Track Api Responses ******************
+    TrackUploadResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          $ref: "#/components/schemas/TrackUploadResponseDto"
+      allOf:
+        - $ref: "#/components/schemas/UserMgmtBaseApiResponse"
+
+    TrackUploadResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        audioFileUrl:
+          type: string
+        TrackType:
+          type: string
+          enum: [BEAT,SAMPLE]
+        createdAt:
+          type: string
+          format: local-date-time
+
+
+    TrackUploadRequest:
+      type: object
+      properties:
+        audioFilePath:
+          type: string
+          description: URL or path to the audio file to be uploaded
+        trackType:
+          type: string
+          enum: [BEAT,SAMPLE]
+        title:
+          type: string
+        description:
+          type: string
+        isPublic:
+          type: boolean
+          default: true
+        isDownloadable:
+          type: boolean
+          default: false
+        bpm:
+          type: integer
+        key:
+          type: string
+        timeSignature:
+          type: string
+          default: "4/4"
+        genres:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+          description: Genres associated with the beat.
+        moods:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+          description: Moods associated with the beat.
+        sampleType:
+          type: string
+          enum: [ONE_SHOT, LOOP, DRUM_HIT, VOCAL_CHOP, INSTRUMENT, FX, RISER, TEXTURE, BASS, VOCAL, MELODY]
+        rootNote:
+          type: string
+        isLoop:
+          type: boolean
+          default: false
+        loopTempo:
+          type: integer
+        audioCategory:
+          type: string
+          enum: [DRUMS, BASS, SYNTH, VOCAL, GUITAR, PIANO, STRINGS, BRASS, WOODWIND, FX, AMBIENT, PERCUSSION]
+
+
