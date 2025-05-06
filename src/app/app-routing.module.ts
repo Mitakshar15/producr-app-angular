@@ -2,6 +2,11 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/auth/login/login.component';
 import { RegisterComponent } from './components/auth/register/register.component';
+import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { ProfileComponent } from './components/dashboard/profile/profile.component';
+import { TracksComponent } from './components/dashboard/tracks/tracks.component';
+import { SettingsComponent } from './components/dashboard/settings/settings.component';
+
 
 export const routes: Routes = [
   {
@@ -15,6 +20,29 @@ export const routes: Routes = [
   {
     path: 'register',
     component: RegisterComponent
+  },
+  {
+    path: 'dashboard',
+    component: DashboardComponent,
+    children: [
+      {
+        path: '',
+        redirectTo: 'profile',
+        pathMatch: 'full'
+      },
+      {
+        path: 'profile',
+        component: ProfileComponent
+      },
+      {
+        path: 'tracks',
+        component: TracksComponent
+      },
+      {
+        path: 'settings',
+        component: SettingsComponent
+      }
+    ]
   },
   {
     path: '**',

@@ -1,0 +1,27 @@
+<div class="profile-container">
+  <h2>My Profile</h2>
+  
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+  
+  <div class="profile-content" *ngIf="userData">
+    
+    <div class="profile-details">
+      <div class="detail-item">
+        <label>Name</label>
+        <p>{{ userData.username }}</p>
+      </div>
+      
+      <div class="detail-item">
+        <label>Email</label>
+        <p>{{ userData.email }}</p>
+      </div>
+      
+      <div class="detail-item" *ngIf="userData.bio">
+        <label>Bio</label>
+        <p>{{ userData.bio }}</p>
+      </div>
+    </div>
+  </div>
+</div>
