@@ -1,0 +1,80 @@
+<div class="tracks-container">
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <h1>My Tracks</h1>
+        <span class="track-count">{{ tracks.length }} tracks</span>
+      </div>
+      <button class="upload-btn" (click)="uploadTrack()">
+        <mat-icon>add</mat-icon>
+        Upload New Track
+      </button>
+    </div>
+  </div>
+
+  <div class="tracks-grid">
+    <div *ngFor="let track of tracks" class="track-card">
+      <div class="track-header">
+        <div class="track-info">
+          <h3 class="track-title">{{ track.title }}</h3>
+          <p class="track-description">{{ track.description }}</p>
+        </div>
+        <button mat-icon-button [matMenuTriggerFor]="menu" class="track-menu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="editTrack(track)">
+            <mat-icon>edit</mat-icon>
+            <span>Edit Track</span>
+          </button>
+          <button mat-menu-item (click)="deleteTrack(track.id)">
+            <mat-icon>delete</mat-icon>
+            <span>Delete Track</span>
+          </button>
+          <button mat-menu-item (click)="shareTrack(track)">
+            <mat-icon>share</mat-icon>
+            <span>Share Track</span>
+          </button>
+        </mat-menu>
+      </div>
+
+      <app-track-player [track]="track"></app-track-player>
+
+      <div class="track-footer">
+        <div class="track-stats">
+          <div class="stat">
+            <mat-icon>play_arrow</mat-icon>
+            <span>{{ track.playsCount }}</span>
+          </div>
+          <div class="stat">
+            <mat-icon>favorite</mat-icon>
+            <span>{{ track.likesCount }}</span>
+          </div>
+          <div class="stat">
+            <mat-icon>comment</mat-icon>
+            <span>{{ track.commentsCount }}</span>
+          </div>
+        </div>
+        <div class="track-meta">
+          <div class="producer">
+            <img [src]="track.producer.avatar || 'assets/default-avatar.png'" alt="Producer avatar" class="producer-avatar">
+            <span>{{ track.producer.username }}</span>
+          </div>
+          <div class="timestamp">
+            {{ track.createdAt | date:'mediumDate' }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!tracks?.length" class="no-tracks">
+    <mat-icon class="empty-icon">music_note</mat-icon>
+    <h2>No tracks yet</h2>
+    <p>Upload your first track to get started!</p>
+    <button class="upload-btn" (click)="uploadTrack()">
+      <mat-icon>add</mat-icon>
+      Upload Track
+    </button>
+  </div>
+</div>

@@ -1,26 +1,145 @@
-<div class="profile-container">
-  <h2>My Profile</h2>
-  
-  <div *ngIf="errorMessage" class="alert alert-danger">
-    {{ errorMessage }}
+<div class="page-container">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Profile</h1>
+      <div class="status-indicator" [class]="userData?.profile?.availabilityStatus?.toLowerCase()">
+        {{ userData?.profile?.availabilityStatus || 'OFFLINE' }}
+      </div>
+    </div>
   </div>
-  
-  <div class="profile-content" *ngIf="userData">
-    
-    <div class="profile-details">
-      <div class="detail-item">
-        <label>Name</label>
-        <p>{{ userData.username }}</p>
+
+  <div class="grid-layout">
+    <!-- Main Info Card -->
+    <div class="card main-info">
+      <div class="card-header">
+        <h2><i class="fas fa-user-circle"></i> Personal Information</h2>
       </div>
-      
-      <div class="detail-item">
-        <label>Email</label>
-        <p>{{ userData.email }}</p>
+      <div class="card-content">
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Username</span>
+            <span class="value highlight">{{ userData?.username }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Email</span>
+            <span class="value">{{ userData?.email }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Role</span>
+            <span class="value">{{ userData?.role || 'Producer' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Member Since</span>
+            <span class="value">{{ userData?.createdAt | date:'mediumDate' }}</span>
+          </div>
+        </div>
       </div>
-      
-      <div class="detail-item" *ngIf="userData.bio">
-        <label>Bio</label>
-        <p>{{ userData.bio }}</p>
+    </div>
+
+    <!-- Stats Card -->
+    <div class="card stats">
+      <div class="card-header">
+        <h2><i class="fas fa-chart-line"></i> Activity Statistics</h2>
+      </div>
+      <div class="card-content">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-icon">
+              <i class="fas fa-music"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value">{{ userData?.noOfTracks || 0 }}</div>
+              <div class="stat-label">Total Tracks</div>
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">
+              <i class="fas fa-heart"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value">{{ userData?.profile?.likes || 0 }}</div>
+              <div class="stat-label">Track Likes</div>
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value">{{ userData?.profile?.followers || 0 }}</div>
+              <div class="stat-label">Followers</div>
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">
+              <i class="fas fa-headphones"></i>
+            </div>
+            <div class="stat-info">
+              <div class="stat-value">{{ userData?.profile?.plays || 0 }}</div>
+              <div class="stat-label">Total Plays</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preferences Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-sliders-h"></i> Preferences</h2>
+      </div>
+      <div class="card-content">
+        <div class="preference-item">
+          <span class="label">Collaboration Status</span>
+          <div class="value-badge" [class]="userData?.profile?.collaborationStatus?.toLowerCase()">
+            {{ userData?.profile?.collaborationStatus || 'CLOSED' }}
+          </div>
+        </div>
+        <div class="preference-item">
+          <span class="label">Primary Genre</span>
+          <span class="value">{{ userData?.profile?.primaryGenre || 'Not specified' }}</span>
+        </div>
+        <div class="preference-item">
+          <span class="label">DAW Preference</span>
+          <span class="value">{{ userData?.profile?.dawPreference || 'Not specified' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skills Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-star"></i> Skills & Expertise</h2>
+      </div>
+      <div class="card-content">
+        <div class="tags">
+          <div class="tag" *ngFor="let skill of userData?.profile?.skills">
+            <i class="fas fa-check"></i>
+            {{ skill }}
+          </div>
+        </div>
+        <div *ngIf="!userData?.profile?.skills?.length" class="alert alert-info">
+          <i class="fas fa-info-circle"></i>
+          No skills added yet
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2><i class="fas fa-history"></i> Recent Activity</h2>
+      </div>
+      <div class="card-content">
+        <div class="info-timeline">
+          <div class="timeline-item" *ngFor="let activity of recentActivities">
+            <i [class]="activity.icon"></i>
+            <div class="timeline-content">
+              <strong>{{ activity.title }}</strong>
+              <span>{{ activity.timestamp | date:'medium' }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
