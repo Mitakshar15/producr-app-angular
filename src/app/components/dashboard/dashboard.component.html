@@ -1,0 +1,91 @@
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <i class="fas fa-wave-square"></i>
+          <span class="logo-text">Producr</span>
+        </div>
+      </div>
+
+      <div class="user-info">
+        <div class="avatar">
+          <img [src]="user?.avatar || 'assets/default-avatar.png'" alt="User avatar">
+          <span class="status-dot" [class.online]="user?.profile?.availabilityStatus === 'AVAILABLE'"></span>
+        </div>
+        <div class="user-details">
+          <h3>{{ user?.username || 'User' }}</h3>
+          <span class="user-role">{{ user?.role || 'Producer' }}</span>
+        </div>
+      </div>
+
+      <ul class="nav-links">
+        <li>
+          <a routerLink="./profile" routerLinkActive="active">
+            <div class="nav-icon">
+              <i class="fas fa-user"></i>
+            </div>
+            <span>Profile</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="./tracks" routerLinkActive="active">
+            <div class="nav-icon">
+              <i class="fas fa-music"></i>
+            </div>
+            <span>My Tracks</span>
+            <div class="track-count" *ngIf="user?.noOfTracks">{{ user?.noOfTracks }}</div>
+          </a>
+        </li>
+        <li>
+          <a routerLink="./sample-packs" routerLinkActive="active">
+            <div class="nav-icon">
+              <i class="fas fa-archive"></i>
+            </div>
+            <span>Sample Packs</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="./settings" routerLinkActive="active">
+            <div class="nav-icon">
+              <i class="fas fa-cog"></i>
+            </div>
+            <span>Settings</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" (click)="logout()">
+          <div class="nav-icon">
+            <i class="fas fa-sign-out-alt"></i>
+          </div>
+          <span>Logout</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+      <header class="top-header">
+        <div class="header-search">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search tracks...">
+        </div>
+        <div class="header-actions">
+          <button class="action-btn notification">
+            <i class="fas fa-bell"></i>
+            <span class="notification-dot"></span>
+          </button>
+          <button class="action-btn new-track">
+            <i class="fas fa-plus"></i>
+            <span>New Track</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="content">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+  </div>

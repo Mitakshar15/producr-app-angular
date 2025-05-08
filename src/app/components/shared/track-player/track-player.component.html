@@ -1,0 +1,56 @@
+<div class="track-player">
+  <!-- Main player container -->
+  <div class="player-container">
+    <!-- Track info section -->
+    <div class="track-info">
+      <!-- Play/pause control -->
+      <button class="control-btn play-btn" (click)="togglePlayback()" [class.playing]="isPlaying">
+        <mat-icon>{{ isPlaying ? 'pause' : 'play_arrow' }}</mat-icon>
+      </button>
+    </div>
+    
+    <!-- Waveform and progress section -->
+    <div class="player-main">
+      <!-- Waveform visualization -->
+      <div class="waveform-container" (click)="onWaveformClick($event)">
+        <div #waveform class="waveform"></div>
+        
+        <!-- Loading indicator -->
+        <div *ngIf="!isWaveformReady" class="loading-overlay">
+          <div class="loading-spinner"></div>
+          <span>Loading audio...</span>
+        </div>
+      </div>
+      
+      <!-- Time display -->
+      <div class="time-display">
+        <span class="current-time">{{ formatTime(currentTime) }}</span>
+        <span class="duration">{{ formatTime(duration) }}</span>
+      </div>
+    </div>
+    
+    <!-- Volume controls -->
+    <div class="volume-section">
+      <button class="control-btn volume-btn" (click)="toggleMute()">
+        <mat-icon>
+          {{ isMuted ? 'volume_off' : 
+             volume > 0.7 ? 'volume_up' : 
+             volume > 0.3 ? 'volume_down' : 'volume_mute' }}
+        </mat-icon>
+      </button>
+      
+      <div class="volume-slider-container">
+        <input 
+          type="range" 
+          class="volume-slider" 
+          min="0" 
+          max="1" 
+          step="0.01" 
+          [value]="volume" 
+          (input)="onVolumeChange($event)"
+          aria-label="Volume control"
+        />
+      </div>
+    </div>
+  </div>
+</div>

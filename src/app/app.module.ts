@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { routes } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { uploadProgressInterceptor } from './interceptors/upload-progress.interceptor';
 
 @NgModule({
   imports: [
@@ -21,7 +22,7 @@ import { authInterceptor } from './interceptors/auth.interceptor';
     CommonModule
   ],
   providers: [
-    provideHttpClient(withInterceptors([authInterceptor]))
+    provideHttpClient(withInterceptors([authInterceptor, uploadProgressInterceptor]))
   ],
   bootstrap: [AppComponent]
 })

@@ -6,6 +6,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ProfileComponent } from './components/dashboard/profile/profile.component';
 import { TracksComponent } from './components/dashboard/tracks/tracks.component';
 import { SettingsComponent } from './components/dashboard/settings/settings.component';
+import { SamplePacksComponent } from './components/dashboard/sample-packs/sample-packs.component';
 
 
 export const routes: Routes = [
@@ -37,6 +38,10 @@ export const routes: Routes = [
       {
         path: 'tracks',
         component: TracksComponent
+      },
+      {
+        path: 'sample-packs',
+        component: SamplePacksComponent
       },
       {
         path: 'settings',

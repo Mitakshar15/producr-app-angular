@@ -1,0 +1,119 @@
+<div class="sample-pack-detail">
+  <div class="dialog-header">
+    <button mat-icon-button class="close-btn" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  
+  <mat-dialog-content>
+    <div class="pack-header">
+      <div class="pack-info">
+        <h2 class="pack-title">{{ samplePack.title }}</h2>
+        <div class="pack-meta">
+          <div class="producer">
+            <img [src]="samplePack.producer.avatar || 'assets/default-avatar.png'" 
+                 alt="Producer avatar" 
+                 class="producer-avatar">
+            <span>{{ samplePack.producer.username }}</span>
+          </div>
+          <div class="pack-stats">
+            <div class="stat">
+              <mat-icon>music_note</mat-icon>
+              <span>{{ samplePack.sampleCount }} samples</span>
+            </div>
+            <div class="stat">
+              <mat-icon>sd_storage</mat-icon>
+              <span>{{ formatFileSize(samplePack.totalSizeBytes) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="pack-actions">
+        <div class="price-tag">${{ samplePack.price.toFixed(2) }}</div>
+        <button mat-raised-button 
+                color="primary" 
+                class="purchase-btn" 
+                (click)="purchasePack()">
+          <mat-icon>shopping_cart</mat-icon>
+          Purchase
+        </button>
+      </div>
+    </div>
+    
+    <div class="pack-description">
+      <p>{{ samplePack.description }}</p>
+    </div>
+    
+    <!-- Sample preview section -->
+    <div class="preview-section" *ngIf="selectedSample">
+      <h3 class="section-title">Sample Preview</h3>
+      
+      <div class="preview-player">
+        <div class="sample-info">
+          <div class="sample-name">{{ selectedSample.name }}</div>
+          <div class="sample-meta">
+            <span class="format">{{ getFileExtension(selectedSample.fileUrl) }}</span>
+            <span class="duration">{{ formatDuration(selectedSample.durationSeconds) }}</span>
+            <span class="size">{{ formatFileSize(selectedSample.sizeBytes) }}</span>
+          </div>
+        </div>
+        
+        <!-- Use the track player component for audio preview -->
+        <app-track-player 
+          *ngIf="currentTrack" 
+          [track]="currentTrack"
+          (playStateChange)="isPlaying = $event">
+        </app-track-player>
+        
+        <div class="preview-unavailable" *ngIf="!currentTrack">
+          <mat-icon>music_off</mat-icon>
+          <span>Preview not available</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Sample list -->
+    <div class="samples-section">
+      <h3 class="section-title">Included Samples ({{ samplePack.samples.length }})</h3>
+      
+      <div class="samples-list">
+        <div *ngFor="let sample of samplePack.samples" 
+             class="sample-item"
+             [class.selected]="selectedSample?.id === sample.id"
+             [class.has-preview]="sample.previewUrl"
+             [class.playing]="selectedSample?.id === sample.id && isPlaying"
+             (click)="selectSample(sample)">
+          <div class="sample-icon">
+            <mat-icon>{{ sample.previewUrl ? 'music_note' : 'music_off' }}</mat-icon>
+          </div>
+          <div class="sample-details">
+            <div class="sample-name">{{ sample.name }}</div>
+            <div class="sample-meta">
+              <span class="format">{{ getFileExtension(sample.fileUrl) }}</span>
+              <span class="duration">{{ formatDuration(sample.durationSeconds) }}</span>
+              <span class="size">{{ formatFileSize(sample.sizeBytes) }}</span>
+            </div>
+          </div>
+          <div class="sample-preview-indicator" *ngIf="sample.previewUrl">
+            <button mat-icon-button 
+                    class="play-preview-btn" 
+                    (click)="playSample(sample); $event.stopPropagation()"
+                    matTooltip="{{ selectedSample?.id === sample.id && isPlaying ? 'Pause preview' : 'Play preview' }}">
+              <mat-icon>{{ selectedSample?.id === sample.id && isPlaying ? 'pause_circle' : 'play_circle' }}</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-dialog-content>
+  
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="close()">Close</button>
+    <button mat-raised-button 
+            color="primary" 
+            (click)="purchasePack()">
+      Purchase for ${{ samplePack.price.toFixed(2) }}
+    </button>
+  </mat-dialog-actions>
+</div>

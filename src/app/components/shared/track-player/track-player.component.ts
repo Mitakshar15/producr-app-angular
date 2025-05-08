@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, SimpleChanges, OnChanges, Renderer2, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSliderModule } from '@angular/material/slider';
@@ -10,235 +10,13 @@ import WaveSurfer from 'wavesurfer.js';
   selector: 'app-track-player',
   standalone: true,
   imports: [CommonModule, MatIconModule, MatSliderModule, FormsModule],
-  template: `
-    <div class="track-player">
-      <div class="player-controls">
-        <button class="play-btn" (click)="togglePlayback()">
-          <mat-icon>{{ isPlaying ? 'pause' : 'play_arrow' }}</mat-icon>
-        </button>
-      </div>
-      
-      <div class="player-content">
-        <div class="waveform-container" (click)="onWaveformClick($event)">
-          <div #waveform class="waveform"></div>
-          <div *ngIf="!isWaveformReady" class="loading-indicator">
-            <div class="loading-spinner"></div>
-            <span>Loading audio...</span>
-          </div>
-        </div>
-        
-        <div class="player-info">
-          <div class="time-info">
-            <span class="current-time">{{ formatTime(currentTime) }}</span>
-            <span class="duration">{{ formatTime(duration) }}</span>
-          </div>
-          
-          <div class="volume-control">
-            <button class="volume-btn" (click)="toggleMute()">
-              <mat-icon>{{ isMuted ? 'volume_off' : volume > 0.5 ? 'volume_up' : 'volume_down' }}</mat-icon>
-            </button>
-            <input 
-              type="range" 
-              class="volume-slider" 
-              min="0" 
-              max="1" 
-              step="0.01" 
-              [value]="volume" 
-              (input)="onVolumeChange($event)"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .track-player {
-      display: flex;
-      gap: 1rem;
-      padding: 1.25rem;
-      background: linear-gradient(145deg, #f8f9fa, #e9ecef);
-      border-radius: 16px;
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .player-controls {
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-    }
-
-    .play-btn {
-      width: 54px;
-      height: 54px;
-      border-radius: 50%;
-      background: linear-gradient(145deg, #3498db, #2980b9);
-      color: white;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .play-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
-    }
-
-    .play-btn:active {
-      transform: scale(0.95);
-    }
-
-    .play-btn mat-icon {
-      font-size: 28px;
-      width: 28px;
-      height: 28px;
-    }
-
-    .player-content {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .waveform-container {
-      width: 100%;
-      height: 80px;
-      position: relative;
-      border-radius: 8px;
-      overflow: hidden;
-      background: rgba(0,0,0,0.05);
-      cursor: pointer;
-    }
-
-    .waveform {
-      width: 100%;
-      height: 100%;
-      background: transparent;
-    }
-
-    .loading-indicator {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .loading-spinner {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border: 2px solid #3498db;
-      border-top-color: #fff;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .player-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .time-info {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.875rem;
-      color: #495057;
-      font-weight: 500;
-      min-width: 80px;
-    }
-
-    .volume-control {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .volume-btn {
-      background: transparent;
-      border: none;
-      color: #495057;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-      padding: 0;
-    }
-
-    .volume-btn:hover {
-      color: #3498db;
-    }
-
-    .volume-btn mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-
-    .volume-slider {
-      width: 80px;
-      height: 4px;
-      -webkit-appearance: none;
-      appearance: none;
-      background: #ddd;
-      outline: none;
-      border-radius: 2px;
-    }
-
-    .volume-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 12px;
-      height: 12px;
-      background: #3498db;
-      border-radius: 50%;
-      cursor: pointer;
-    }
-    
-    .volume-slider::-moz-range-thumb {
-      width: 12px;
-      height: 12px;
-      background: #3498db;
-      border-radius: 50%;
-      cursor: pointer;
-      border: none;
-    }
-
-    @media (max-width: 576px) {
-      .track-player {
-        flex-direction: column;
-        align-items: center;
-        padding: 1rem;
-      }
-
-      .player-info {
-        width: 100%;
-      }
-    }
-  `]
+  templateUrl: './track-player.component.html',
+  styleUrls: ['./track-player.component.scss']
 })
 export class TrackPlayerComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
   @Input() track!: Track;
   @ViewChild('waveform') waveformElement!: ElementRef;
+  @Output() playStateChange = new EventEmitter<boolean>();
 
   // WaveSurfer instance
   private wavesurfer: WaveSurfer | null = null;
@@ -258,7 +36,7 @@ export class TrackPlayerComponent implements OnInit, OnDestroy, AfterViewInit, O
   // Timer for updating current time display
   private updateTimer: number | null = null;
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(private cdr: ChangeDetectorRef, private renderer: Renderer2) {}
 
   ngOnInit(): void {
     // Initialize component state here if needed
@@ -318,6 +96,7 @@ export class TrackPlayerComponent implements OnInit, OnDestroy, AfterViewInit, O
     }
     
     this.wavesurfer.setVolume(newVolume);
+    this.updateVolumeSliderGradient(input, newVolume);
     this.cdr.detectChanges();
   }
 
@@ -339,6 +118,13 @@ export class TrackPlayerComponent implements OnInit, OnDestroy, AfterViewInit, O
     }
     
     this.wavesurfer.setVolume(this.volume);
+    
+    // Update the volume slider gradient
+    const volumeSlider = document.querySelector('.volume-slider') as HTMLInputElement;
+    if (volumeSlider) {
+      this.updateVolumeSliderGradient(volumeSlider, this.volume);
+    }
+    
     this.cdr.detectChanges();
   }
 
@@ -392,12 +178,12 @@ export class TrackPlayerComponent implements OnInit, OnDestroy, AfterViewInit, O
       // Create new instance
       this.wavesurfer = WaveSurfer.create({
         container: this.waveformElement.nativeElement,
-        waveColor: '#A8DBA8',
-        progressColor: '#3498db',
-        cursorColor: '#2980b9',
+        waveColor: '#9d46ff',
+        progressColor: '#6200ea',
+        cursorColor: '#03dac6',
         barWidth: 2,
         barGap: 1,
-        height: 80,
+        height: 64,
         barRadius: 3,
         normalize: true,
         fillParent: true,
@@ -414,6 +200,14 @@ export class TrackPlayerComponent implements OnInit, OnDestroy, AfterViewInit, O
       
       // Load the audio file
       this.wavesurfer.load(audioUrl);
+      
+      // Initialize volume slider gradient
+      setTimeout(() => {
+        const volumeSlider = document.querySelector('.volume-slider') as HTMLInputElement;
+        if (volumeSlider) {
+          this.updateVolumeSliderGradient(volumeSlider, this.volume);
+        }
+      }, 100);
     } catch (error) {
       console.error('Error initializing WaveSurfer:', error);
     }
@@ -425,47 +219,41 @@ export class TrackPlayerComponent implements OnInit, OnDestroy, AfterViewInit, O
   private setupWaveSurferEvents(): void {
     if (!this.wavesurfer) return;
     
-    // When audio is ready to play
+    // Ready event
     this.wavesurfer.on('ready', () => {
       this.isWaveformReady = true;
-      
-      // Get duration from wavesurfer
       if (this.wavesurfer) {
         this.duration = this.wavesurfer.getDuration();
       }
-      
-      this.startTimeUpdateTimer();
       this.cdr.detectChanges();
     });
     
-    // When playback starts
+    // Play event
     this.wavesurfer.on('play', () => {
       this.isPlaying = true;
+      this.startTimeUpdateTimer();
+      this.playStateChange.emit(true);
       this.cdr.detectChanges();
     });
     
-    // When playback pauses
+    // Pause event
     this.wavesurfer.on('pause', () => {
       this.isPlaying = false;
+      this.stopTimeUpdateTimer();
+      this.playStateChange.emit(false);
       this.cdr.detectChanges();
     });
     
-    // When playback ends
+    // Finish event
     this.wavesurfer.on('finish', () => {
       this.isPlaying = false;
+      this.stopTimeUpdateTimer();
+      this.playStateChange.emit(false);
       this.cdr.detectChanges();
     });
     
-    // When seeking occurs
-    this.wavesurfer.on('seeking', (position: number) => {
-      if (this.wavesurfer) {
-        this.currentTime = position * this.wavesurfer.getDuration();
-        this.cdr.detectChanges();
-      }
-    });
-    
-    // Handle errors
-    this.wavesurfer.on('error', (error) => {
+    // Error event
+    this.wavesurfer.on('error', (error: any) => {
       console.error('WaveSurfer error:', error);
       this.isWaveformReady = false;
       this.cdr.detectChanges();
@@ -548,5 +336,17 @@ export class TrackPlayerComponent implements OnInit, OnDestroy, AfterViewInit, O
     
     // Seek to the clicked position
     this.wavesurfer.seekTo(percent);
+  }
+
+  /**
+   * Update the volume slider gradient based on current volume
+   */
+  private updateVolumeSliderGradient(slider: HTMLInputElement, value: number): void {
+    const percent = value * 100;
+    this.renderer.setStyle(
+      slider, 
+      'background', 
+      `linear-gradient(to right, #6200ea 0%, #6200ea ${percent}%, rgba(0, 0, 0, 0.1) ${percent}%)`
+    );
   }
 }

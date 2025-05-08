@@ -1,0 +1,109 @@
+<div class="sample-packs-container">
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-title">
+        <h1>{{ showUserPacks ? 'My Sample Packs' : 'Sample Packs' }}</h1>
+        <span class="pack-count" *ngIf="!isLoading">
+          {{ showUserPacks ? userSamplePacks.length : samplePacks.length }} packs
+        </span>
+      </div>
+      <div class="header-actions">
+        <button class="toggle-view-btn" (click)="toggleView()">
+          <mat-icon>{{ showUserPacks ? 'store' : 'person' }}</mat-icon>
+          {{ showUserPacks ? 'View All Packs' : 'View My Packs' }}
+        </button>
+        <button class="upload-btn" (click)="openUploadDialog()" *ngIf="showUserPacks">
+          <mat-icon>add</mat-icon>
+          Upload Sample Pack
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading indicator -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>Loading sample packs...</p>
+  </div>
+
+  <!-- Sample packs grid -->
+  <div class="sample-packs-grid" *ngIf="!isLoading">
+    <div *ngFor="let pack of showUserPacks ? userSamplePacks : samplePacks" 
+         class="sample-pack-card" 
+         [class.unpublished]="showUserPacks && !pack.published">
+      
+      <!-- Card header -->
+      <div class="pack-header">
+        <div class="pack-info">
+          <h3 class="pack-title">{{ pack.title }}</h3>
+          <p class="pack-producer">{{ pack.producer.username }}</p>
+        </div>
+        
+        <!-- Actions menu for user's packs -->
+        <button mat-icon-button [matMenuTriggerFor]="menu" class="pack-menu" *ngIf="showUserPacks">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="togglePublishStatus(pack.id, pack.published)">
+            <mat-icon>{{ pack.published ? 'unpublished' : 'publish' }}</mat-icon>
+            <span>{{ pack.published ? 'Unpublish' : 'Publish' }}</span>
+          </button>
+          <button mat-menu-item (click)="deleteSamplePack(pack.id)">
+            <mat-icon>delete</mat-icon>
+            <span>Delete</span>
+          </button>
+        </mat-menu>
+      </div>
+      
+      <!-- Pack content -->
+      <div class="pack-content" (click)="viewSamplePack(pack)">
+        <div class="pack-details">
+          <p class="pack-description">{{ pack.description }}</p>
+          
+          <div class="pack-stats">
+            <div class="stat">
+              <mat-icon>music_note</mat-icon>
+              <span>{{ pack.sampleCount }} samples</span>
+            </div>
+            <div class="stat">
+              <mat-icon>sd_storage</mat-icon>
+              <span>{{ formatFileSize(pack.totalSizeBytes) }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="pack-price">
+          <span class="price-value">${{ pack.price.toFixed(2) }}</span>
+        </div>
+      </div>
+      
+      <!-- Unpublished indicator -->
+      <div class="unpublished-badge" *ngIf="showUserPacks && !pack.published">
+        <mat-icon>visibility_off</mat-icon>
+        <span>Unpublished</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="!isLoading && (showUserPacks ? userSamplePacks.length === 0 : samplePacks.length === 0)">
+    <mat-icon class="empty-icon">library_music</mat-icon>
+    <h2>{{ showUserPacks ? 'No sample packs yet' : 'No sample packs available' }}</h2>
+    <p *ngIf="showUserPacks">Upload your first sample pack to get started!</p>
+    <button class="upload-btn" (click)="openUploadDialog()" *ngIf="showUserPacks">
+      <mat-icon>add</mat-icon>
+      Upload Sample Pack
+    </button>
+  </div>
+  
+  <!-- Pagination -->
+  <mat-paginator 
+    *ngIf="totalItems > pageSize"
+    [length]="totalItems"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[12, 24, 48]"
+    (page)="onPageChange($event)"
+    aria-label="Select page">
+  </mat-paginator>
+</div>
+

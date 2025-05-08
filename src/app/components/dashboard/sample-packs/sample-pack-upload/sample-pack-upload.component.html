@@ -1,0 +1,132 @@
+<div class="upload-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>Upload Sample Pack</h2>
+    <button mat-icon-button (click)="onCancel()" *ngIf="!isUploading">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  
+  <mat-dialog-content>
+    <form [formGroup]="uploadForm" (ngSubmit)="onSubmit()">
+      <!-- File upload section -->
+      <div class="file-upload-section">
+        <div class="file-drop-area" 
+             [class.has-file]="selectedFile" 
+             [class.error]="errorMessage">
+          <input type="file" 
+                 id="file-input" 
+                 accept=".zip" 
+                 (change)="onFileSelected($event)"
+                 [disabled]="isUploading">
+          
+          <div class="upload-content" *ngIf="!selectedFile">
+            <mat-icon>cloud_upload</mat-icon>
+            <h3>Drag & Drop or Click to Upload</h3>
+            <p>Upload a ZIP file containing your audio samples (max 100MB)</p>
+          </div>
+          
+          <div class="file-info" *ngIf="selectedFile">
+            <div class="file-preview">
+              <mat-icon>folder_zip</mat-icon>
+            </div>
+            <div class="file-details">
+              <h4>{{ fileName }}</h4>
+              <p>{{ formatFileSize(fileSize) }}</p>
+            </div>
+            <button type="button" 
+                    class="remove-file-btn" 
+                    (click)="removeFile()" 
+                    [disabled]="isUploading">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          
+          <div class="error-message" *ngIf="errorMessage">
+            <mat-icon>error_outline</mat-icon>
+            <span>{{ errorMessage }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Form fields -->
+      <div class="form-fields">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Title</mat-label>
+          <input matInput 
+                 formControlName="title" 
+                 placeholder="Enter sample pack title"
+                 [disabled]="isUploading">
+          <mat-error *ngIf="uploadForm.get('title')?.hasError('required')">
+            Title is required
+          </mat-error>
+          <mat-error *ngIf="uploadForm.get('title')?.hasError('maxlength')">
+            Title cannot exceed 100 characters
+          </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description</mat-label>
+          <textarea matInput 
+                    formControlName="description" 
+                    placeholder="Describe your sample pack"
+                    rows="3"
+                    [disabled]="isUploading"></textarea>
+          <mat-error *ngIf="uploadForm.get('description')?.hasError('required')">
+            Description is required
+          </mat-error>
+          <mat-error *ngIf="uploadForm.get('description')?.hasError('maxlength')">
+            Description cannot exceed 500 characters
+          </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+          <mat-label>Price ($)</mat-label>
+          <input matInput 
+                 type="number" 
+                 formControlName="price" 
+                 min="0" 
+                 step="0.01"
+                 [disabled]="isUploading">
+          <mat-error *ngIf="uploadForm.get('price')?.hasError('required')">
+            Price is required
+          </mat-error>
+          <mat-error *ngIf="uploadForm.get('price')?.hasError('min')">
+            Price cannot be negative
+          </mat-error>
+          <mat-error *ngIf="uploadForm.get('price')?.hasError('max')">
+            Price cannot exceed $1000
+          </mat-error>
+        </mat-form-field>
+        
+        <div class="toggle-option">
+          <mat-slide-toggle formControlName="enablePreviews" [disabled]="isUploading">
+            Generate preview versions
+          </mat-slide-toggle>
+          <span class="toggle-hint">
+            Create shorter, watermarked previews of your samples
+          </span>
+        </div>
+      </div>
+    </form>
+    
+    <!-- Upload progress -->
+    <div class="upload-progress" *ngIf="isUploading">
+      <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+      <p class="progress-text">Uploading... {{ uploadProgress }}%</p>
+    </div>
+  </mat-dialog-content>
+  
+  <mat-dialog-actions align="end">
+    <button mat-button 
+            (click)="onCancel()" 
+            [disabled]="isUploading">
+      Cancel
+    </button>
+    <button mat-raised-button 
+            color="primary" 
+            (click)="onSubmit()" 
+            [disabled]="uploadForm.invalid || !selectedFile || isUploading">
+      Upload
+    </button>
+  </mat-dialog-actions>
+</div>
