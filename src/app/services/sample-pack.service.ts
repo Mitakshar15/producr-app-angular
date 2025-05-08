@@ -2,11 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpRequest, HttpEvent } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { 
-  SamplePack, 
-  SamplePackResponse, 
-  PublishedSamplePackResponse, 
-  SamplePackUploadRequest 
+import {
+  SamplePack,
+  SamplePackResponse,
+  PublishedSamplePackResponse,
+  SamplePackUploadRequest
 } from '../interfaces/sample-pack.interface';
 
 @Injectable({
@@ -98,6 +98,6 @@ export class SamplePackService {
    * @returns Observable with the updated sample pack
    */
   togglePublishStatus(id: string, publish: boolean): Observable<SamplePackResponse> {
-    return this.http.put<SamplePackResponse>(`${this.apiUrl}/${id}/publish`, { published: publish });
+    return this.http.post<SamplePackResponse>(`${this.apiUrl}/${id}/publish`, { published: publish });
   }
 }
