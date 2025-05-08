@@ -1,12 +1,9 @@
-import { Component, Input, OnInit, OnDestroy, NgZone, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, SimpleChanges, OnChanges } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, SimpleChanges, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSliderModule } from '@angular/material/slider';
 import { FormsModule } from '@angular/forms';
 import { Track } from '../../../interfaces/track.interface';
-import { Howl } from 'howler';
-import { HttpClient } from '@angular/common/http';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import WaveSurfer from 'wavesurfer.js';
 
 @Component({
@@ -16,13 +13,13 @@ import WaveSurfer from 'wavesurfer.js';
   template: `
     <div class="track-player">
       <div class="player-controls">
-        <button class="play-btn" (click)="togglePlay()">
+        <button class="play-btn" (click)="togglePlayback()">
           <mat-icon>{{ isPlaying ? 'pause' : 'play_arrow' }}</mat-icon>
         </button>
       </div>
       
       <div class="player-content">
-        <div class="waveform-container" (click)="seekToPosition($event)">
+        <div class="waveform-container" (click)="onWaveformClick($event)">
           <div #waveform class="waveform"></div>
           <div *ngIf="!isWaveformReady" class="loading-indicator">
             <div class="loading-spinner"></div>
@@ -85,21 +82,21 @@ import WaveSurfer from 'wavesurfer.js';
       justify-content: center;
       transition: all 0.3s ease;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
 
-      &:hover {
-        transform: scale(1.05);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
-      }
+    .play-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+    }
 
-      &:active {
-        transform: scale(0.95);
-      }
+    .play-btn:active {
+      transform: scale(0.95);
+    }
 
-      mat-icon {
-        font-size: 28px;
-        width: 28px;
-        height: 28px;
-      }
+    .play-btn mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
     }
 
     .player-content {
@@ -117,12 +114,41 @@ import WaveSurfer from 'wavesurfer.js';
       border-radius: 8px;
       overflow: hidden;
       background: rgba(0,0,0,0.05);
+      cursor: pointer;
     }
 
     .waveform {
       width: 100%;
       height: 100%;
       background: transparent;
+    }
+
+    .loading-indicator {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .loading-spinner {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #3498db;
+      border-top-color: #fff;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     .player-info {
@@ -156,16 +182,16 @@ import WaveSurfer from 'wavesurfer.js';
       justify-content: center;
       transition: all 0.2s ease;
       padding: 0;
+    }
 
-      &:hover {
-        color: #3498db;
-      }
+    .volume-btn:hover {
+      color: #3498db;
+    }
 
-      mat-icon {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-      }
+    .volume-btn mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
 
     .volume-slider {
@@ -176,57 +202,25 @@ import WaveSurfer from 'wavesurfer.js';
       background: #ddd;
       outline: none;
       border-radius: 2px;
-      
-      &::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 12px;
-        height: 12px;
-        background: #3498db;
-        border-radius: 50%;
-        cursor: pointer;
-      }
-      
-      &::-moz-range-thumb {
-        width: 12px;
-        height: 12px;
-        background: #3498db;
-        border-radius: 50%;
-        cursor: pointer;
-        border: none;
-      }
     }
 
-    .loading-indicator {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .loading-spinner {
-      width: 24px;
-      height: 24px;
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      background: #3498db;
       border-radius: 50%;
-      border: 2px solid #3498db;
-      border-top-color: #fff;
-      animation: spin 1s linear infinite;
+      cursor: pointer;
     }
-
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(360deg);
-      }
+    
+    .volume-slider::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      background: #3498db;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
     }
 
     @media (max-width: 576px) {
@@ -246,59 +240,156 @@ export class TrackPlayerComponent implements OnInit, OnDestroy, AfterViewInit, O
   @Input() track!: Track;
   @ViewChild('waveform') waveformElement!: ElementRef;
 
-  private sound: Howl | null = null;
+  // WaveSurfer instance
   private wavesurfer: WaveSurfer | null = null;
+  
+  // Track the current audio URL to prevent unnecessary reinitialization
+  private currentAudioUrl = '';
+  
+  // UI state
   isPlaying = false;
   isMuted = false;
+  isWaveformReady = false;
   currentTime = 0;
   duration = 0;
   volume = 0.8;
-  previousVolume = 0.8;
-  private updateTimer: any = null;
-  public isWaveformReady = false;
-  private isInitialized = false;
-  private currentAudioUrl: string | null = null;
+  private savedVolume = 0.8;
+  
+  // Timer for updating current time display
+  private updateTimer: number | null = null;
 
-  constructor(
-    private ngZone: NgZone, 
-    private cdr: ChangeDetectorRef,
-    private http: HttpClient,
-    private sanitizer: DomSanitizer
-  ) {}
+  constructor(private cdr: ChangeDetectorRef) {}
 
-  ngOnInit() {
-    // We'll initialize after the view is ready
+  ngOnInit(): void {
+    // Initialize component state here if needed
   }
 
-  ngAfterViewInit() {
-    // Initialize the player after the view is ready
+  ngAfterViewInit(): void {
+    // Wait for the DOM to be ready
     setTimeout(() => {
-      this.initializeAudio();
+      this.initializePlayer();
     }, 100);
   }
 
-  ngOnDestroy() {
-    this.cleanupAudio();
-  }
-
-  ngOnChanges(changes: SimpleChanges) {
-    // If the track changes, reinitialize the audio
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes['track'] && !changes['track'].firstChange) {
-      console.log('Track changed, reinitializing audio');
-      
-      // Clean up first
-      this.cleanupAudio();
-      
-      // Wait a bit to ensure cleanup is complete
-      setTimeout(() => {
-        this.initializeAudio();
-      }, 100);
+      // Only reinitialize if the track has actually changed
+      const newAudioUrl = this.track?.audioFileUrl ? this.getAudioUrl(this.track.audioFileUrl) : '';
+      if (newAudioUrl !== this.currentAudioUrl) {
+        this.cleanupPlayer();
+        setTimeout(() => {
+          this.initializePlayer();
+        }, 100);
+      }
     }
   }
 
-  private initializeWaveSurfer() {
+  ngOnDestroy(): void {
+    this.cleanupPlayer();
+  }
+
+  /**
+   * Toggle play/pause state
+   */
+  togglePlayback(): void {
+    if (!this.wavesurfer) return;
+    
+    if (this.isPlaying) {
+      this.wavesurfer.pause();
+    } else {
+      this.wavesurfer.play();
+    }
+  }
+
+  /**
+   * Handle volume change from slider
+   */
+  onVolumeChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const newVolume = parseFloat(input.value);
+    
+    if (isNaN(newVolume) || !this.wavesurfer) return;
+    
+    this.volume = newVolume;
+    this.isMuted = newVolume === 0;
+    
+    if (newVolume > 0) {
+      this.savedVolume = newVolume;
+    }
+    
+    this.wavesurfer.setVolume(newVolume);
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Toggle mute/unmute
+   */
+  toggleMute(): void {
+    if (!this.wavesurfer) return;
+    
+    if (this.isMuted) {
+      // Unmute
+      this.volume = this.savedVolume;
+      this.isMuted = false;
+    } else {
+      // Mute
+      this.savedVolume = this.volume;
+      this.volume = 0;
+      this.isMuted = true;
+    }
+    
+    this.wavesurfer.setVolume(this.volume);
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Format seconds to MM:SS
+   */
+  formatTime(seconds: number): string {
+    if (!seconds || isNaN(seconds)) return '0:00';
+    
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  /**
+   * Initialize the WaveSurfer player
+   */
+  private initializePlayer(): void {
+    if (!this.track || !this.track.audioFileUrl || !this.waveformElement) {
+      return;
+    }
+    
+    const audioUrl = this.getAudioUrl(this.track.audioFileUrl);
+    this.currentAudioUrl = audioUrl;
+    
+    // Create WaveSurfer instance
+    this.createWaveSurfer(audioUrl);
+  }
+
+  /**
+   * Create and configure WaveSurfer instance
+   */
+  private createWaveSurfer(audioUrl: string): void {
+    // Make sure we have a valid element
+    if (!this.waveformElement || !this.waveformElement.nativeElement) {
+      return;
+    }
+    
     try {
-      // Create WaveSurfer instance
+      // Destroy any existing instance
+      if (this.wavesurfer) {
+        this.wavesurfer.destroy();
+      }
+      
+      // Reset state
+      this.isWaveformReady = false;
+      this.isPlaying = false;
+      this.currentTime = 0;
+      this.duration = this.track.trackLengthSeconds || 0;
+      
+      // Create new instance
       this.wavesurfer = WaveSurfer.create({
         container: this.waveformElement.nativeElement,
         waveColor: '#A8DBA8',
@@ -310,132 +401,129 @@ export class TrackPlayerComponent implements OnInit, OnDestroy, AfterViewInit, O
         barRadius: 3,
         normalize: true,
         fillParent: true,
-        interact: true
+        interact: true,
+        backend: 'MediaElement',
+        mediaControls: false
       });
-
+      
+      // Set initial volume
+      this.wavesurfer.setVolume(this.volume);
+      
       // Set up event listeners
-      this.wavesurfer.on('ready', () => {
-        console.log('Waveform is ready');
-        this.isWaveformReady = true;
-        
-        // Update duration from the waveform
-        if (this.wavesurfer) {
-          this.duration = this.wavesurfer.getDuration();
-          console.log('Duration from waveform:', this.duration);
-          
-          // If we still don't have a duration, use the track length from the API
-          if (!this.duration && this.track?.trackLengthSeconds) {
-            this.duration = this.track.trackLengthSeconds;
-          }
-        }
-        
-        this.cdr.detectChanges();
-      });
-
-      // Use the interaction event for seeking
-      this.wavesurfer.on('interaction', (progress: number) => {
-        if (this.sound) {
-          const seekTime = progress * this.duration;
-          this.sound.seek(seekTime);
-          this.currentTime = seekTime;
-          this.cdr.detectChanges();
-        }
-      });
-
-      this.wavesurfer.on('error', (error: any) => {
-        console.error('Waveform error:', error);
-        
-        // If waveform fails, we'll still have the basic player functionality
-        if (this.track?.trackLengthSeconds) {
-          this.duration = this.track.trackLengthSeconds;
-          this.cdr.detectChanges();
-        }
-      });
+      this.setupWaveSurferEvents();
+      
+      // Load the audio file
+      this.wavesurfer.load(audioUrl);
     } catch (error) {
       console.error('Error initializing WaveSurfer:', error);
     }
   }
 
-  private cleanupAudio() {
-    // Stop and unload any existing audio
-    if (this.sound) {
-      this.sound.stop();
-      this.sound.unload();
-      this.sound = null;
-    }
+  /**
+   * Set up all event listeners for WaveSurfer
+   */
+  private setupWaveSurferEvents(): void {
+    if (!this.wavesurfer) return;
     
-    // Stop any existing update timer
+    // When audio is ready to play
+    this.wavesurfer.on('ready', () => {
+      this.isWaveformReady = true;
+      
+      // Get duration from wavesurfer
+      if (this.wavesurfer) {
+        this.duration = this.wavesurfer.getDuration();
+      }
+      
+      this.startTimeUpdateTimer();
+      this.cdr.detectChanges();
+    });
+    
+    // When playback starts
+    this.wavesurfer.on('play', () => {
+      this.isPlaying = true;
+      this.cdr.detectChanges();
+    });
+    
+    // When playback pauses
+    this.wavesurfer.on('pause', () => {
+      this.isPlaying = false;
+      this.cdr.detectChanges();
+    });
+    
+    // When playback ends
+    this.wavesurfer.on('finish', () => {
+      this.isPlaying = false;
+      this.cdr.detectChanges();
+    });
+    
+    // When seeking occurs
+    this.wavesurfer.on('seeking', (position: number) => {
+      if (this.wavesurfer) {
+        this.currentTime = position * this.wavesurfer.getDuration();
+        this.cdr.detectChanges();
+      }
+    });
+    
+    // Handle errors
+    this.wavesurfer.on('error', (error) => {
+      console.error('WaveSurfer error:', error);
+      this.isWaveformReady = false;
+      this.cdr.detectChanges();
+    });
+  }
+
+  /**
+   * Start timer to update current time display
+   */
+  private startTimeUpdateTimer(): void {
+    // Clear any existing timer
+    this.stopTimeUpdateTimer();
+    
+    // Update current time every 100ms
+    this.updateTimer = setInterval(() => {
+      if (this.wavesurfer && this.isPlaying) {
+        this.currentTime = this.wavesurfer.getCurrentTime();
+        this.cdr.detectChanges();
+      }
+    }, 100);
+  }
+
+  /**
+   * Stop the time update timer
+   */
+  private stopTimeUpdateTimer(): void {
     if (this.updateTimer) {
       clearInterval(this.updateTimer);
       this.updateTimer = null;
     }
+  }
+
+  /**
+   * Clean up all resources
+   */
+  private cleanupPlayer(): void {
+    // Stop the timer
+    this.stopTimeUpdateTimer();
     
-    // Destroy any existing waveform
+    // Destroy WaveSurfer instance
     if (this.wavesurfer) {
+      this.wavesurfer.pause();
       this.wavesurfer.destroy();
       this.wavesurfer = null;
     }
     
     // Reset state
     this.isPlaying = false;
+    this.isWaveformReady = false;
     this.currentTime = 0;
     this.duration = 0;
-    this.isWaveformReady = false;
-    this.isInitialized = false;
+    this.currentAudioUrl = '';
   }
 
-  private initializeAudio() {
-    if (!this.track || !this.track.audioFileUrl) {
-      console.error('No audio URL available for this track');
-      return;
-    }
-
-    // Generate the audio URL
-    const audioUrl = this.getAudioUrl(this.track.audioFileUrl);
-    
-    // Check if we're already playing this audio
-    if (this.currentAudioUrl === audioUrl && this.sound) {
-      console.log('Audio already loaded, skipping initialization');
-      return;
-    }
-    
-    // Clean up any existing sound
-    this.cleanupAudio();
-
-    console.log('Original audio path:', this.track.audioFileUrl);
-    
-    // Store the current audio URL
-    this.currentAudioUrl = audioUrl;
-    
-    console.log('Initializing audio with URL:', audioUrl);
-    
-    // Set a default duration if available from the track data
-    if (this.track.trackLengthSeconds) {
-      this.duration = this.track.trackLengthSeconds;
-      this.cdr.detectChanges();
-    }
-    
-    // Initialize WaveSurfer first
-    this.initializeWaveSurfer();
-    
-    // Load the waveform
-    if (this.wavesurfer) {
-      try {
-        this.wavesurfer.load(audioUrl);
-      } catch (error) {
-        console.error('Error loading waveform:', error);
-        this.isWaveformReady = false;
-      }
-    }
-    
-    // Load with Howler
-    this.loadWithHowler(audioUrl);
-    
-    this.isInitialized = true;
-  }
-
+  /**
+   * Get the proper URL for the audio file
+   */
   private getAudioUrl(originalUrl: string): string {
-    // For local file paths, we need to use our audio server
     if (originalUrl.startsWith('/')) {
       // This is a local file path, use our audio server
       const encodedPath = encodeURIComponent(originalUrl);
@@ -447,279 +535,18 @@ export class TrackPlayerComponent implements OnInit, OnDestroy, AfterViewInit, O
     }
   }
 
-  private loadWithHowler(audioUrl: string) {
-    try {
-      // If we already have a sound instance, unload it first
-      if (this.sound) {
-        this.sound.unload();
-      }
-      
-      // Create a new Howl instance with a single source
-      this.sound = new Howl({
-        src: [audioUrl],
-        html5: true, // Force HTML5 Audio to handle streaming
-        preload: true,
-        format: ['mp3', 'wav', 'ogg'],
-        volume: this.volume,
-        autoplay: false, // Prevent autoplay
-        pool: 1, // Limit to a single audio instance
-        onplay: () => {
-          this.isPlaying = true;
-          this.startProgressUpdate();
-          
-          // Also play the waveform if it's ready
-          if (this.wavesurfer && this.isWaveformReady && !this.wavesurfer.isPlaying()) {
-            try {
-              this.wavesurfer.play();
-            } catch (error) {
-              console.error('Error playing waveform:', error);
-            }
-          }
-          
-          this.cdr.detectChanges();
-        },
-        onpause: () => {
-          this.isPlaying = false;
-          this.stopProgressUpdate();
-          
-          // Also pause the waveform if it's playing
-          if (this.wavesurfer && this.isWaveformReady && this.wavesurfer.isPlaying()) {
-            try {
-              this.wavesurfer.pause();
-            } catch (error) {
-              console.error('Error pausing waveform:', error);
-            }
-          }
-          
-          this.cdr.detectChanges();
-        },
-        onstop: () => {
-          this.isPlaying = false;
-          this.stopProgressUpdate();
-          this.currentTime = 0;
-          
-          // Also stop the waveform
-          if (this.wavesurfer && this.isWaveformReady) {
-            try {
-              this.wavesurfer.stop();
-            } catch (error) {
-              console.error('Error stopping waveform:', error);
-            }
-          }
-          
-          this.cdr.detectChanges();
-        },
-        onend: () => {
-          this.isPlaying = false;
-          this.stopProgressUpdate();
-          this.currentTime = this.duration;
-          
-          // Also stop the waveform
-          if (this.wavesurfer && this.isWaveformReady) {
-            try {
-              this.wavesurfer.stop();
-            } catch (error) {
-              console.error('Error stopping waveform:', error);
-            }
-          }
-          
-          this.cdr.detectChanges();
-        },
-        onload: () => {
-          // Update duration when loaded
-          if (this.sound) {
-            this.duration = this.sound.duration();
-            console.log('Duration from Howler:', this.duration);
-            this.cdr.detectChanges();
-          }
-        },
-        onloaderror: (id, error) => {
-          console.error('Error loading audio:', error);
-          
-          // If we have a track length from the API, use that for the duration display
-          if (this.track?.trackLengthSeconds) {
-            this.duration = this.track.trackLengthSeconds;
-            this.cdr.detectChanges();
-          }
-        }
-      });
-    } catch (error) {
-      console.error('Error creating Howl instance:', error);
-    }
-  }
-
-  private startProgressUpdate() {
-    // Clear any existing timer
-    if (this.updateTimer) {
-      clearInterval(this.updateTimer);
-    }
-
-    // Update progress every 100ms
-    this.updateTimer = setInterval(() => {
-      this.updateProgress();
-    }, 100);
-  }
-
-  private stopProgressUpdate() {
-    if (this.updateTimer) {
-      clearInterval(this.updateTimer);
-      this.updateTimer = null;
-    }
-  }
-
-  private updateProgress() {
-    if (!this.sound || !this.isPlaying) return;
+  /**
+   * Handle click on waveform to seek
+   */
+  onWaveformClick(event: MouseEvent): void {
+    if (!this.wavesurfer || !this.isWaveformReady || !this.duration) return;
     
-    try {
-      const currentTime = this.sound.seek() as number;
-      if (!isNaN(currentTime)) {
-        this.currentTime = currentTime;
-        
-        // Update waveform position if needed
-        if (this.wavesurfer && this.isWaveformReady && this.duration > 0) {
-          const progress = this.currentTime / this.duration;
-          // Only update if the difference is significant to avoid too many updates
-          const currentProgress = this.wavesurfer.getCurrentTime() / this.wavesurfer.getDuration();
-          if (Math.abs(progress - currentProgress) > 0.01) {
-            try {
-              this.wavesurfer.seekTo(progress);
-            } catch (error) {
-              console.error('Error updating waveform progress:', error);
-            }
-          }
-        }
-        
-        this.cdr.detectChanges();
-      }
-    } catch (error) {
-      console.error('Error updating progress:', error);
-    }
-  }
-
-  togglePlay() {
-    if (!this.sound) {
-      console.error('No audio loaded');
-      return;
-    }
+    const container = event.currentTarget as HTMLElement;
+    const rect = container.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const percent = x / rect.width;
     
-    try {
-      if (this.isPlaying) {
-        // Pause the audio
-        this.sound.pause();
-        
-        // Also pause the waveform if it's ready
-        if (this.wavesurfer && this.isWaveformReady) {
-          try {
-            this.wavesurfer.pause();
-          } catch (error) {
-            console.error('Error pausing waveform:', error);
-          }
-        }
-      } else {
-        // Play the audio
-        this.sound.play();
-        
-        // Also play the waveform if it's ready
-        if (this.wavesurfer && this.isWaveformReady) {
-          try {
-            this.wavesurfer.play();
-          } catch (error) {
-            console.error('Error playing waveform:', error);
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error toggling play state:', error);
-    }
-  }
-
-  onVolumeChange(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const newVolume = parseFloat(input.value);
-    
-    if (isNaN(newVolume)) return;
-    
-    this.volume = newVolume;
-    this.previousVolume = newVolume;
-    this.isMuted = newVolume === 0;
-    
-    if (this.sound) {
-      try {
-        this.sound.volume(newVolume);
-      } catch (error) {
-        console.error('Error setting volume:', error);
-      }
-    }
-  }
-
-  toggleMute() {
-    try {
-      if (this.isMuted) {
-        // Unmute - restore previous volume
-        this.volume = this.previousVolume > 0 ? this.previousVolume : 0.8;
-        this.isMuted = false;
-      } else {
-        // Mute - save current volume and set to 0
-        this.previousVolume = this.volume;
-        this.volume = 0;
-        this.isMuted = true;
-      }
-      
-      // Apply volume to sound
-      if (this.sound) {
-        this.sound.volume(this.volume);
-      }
-    } catch (error) {
-      console.error('Error toggling mute:', error);
-    }
-  }
-
-  seekToPosition(event: MouseEvent) {
-    if (!this.sound || !this.duration) return;
-    
-    try {
-      const container = event.currentTarget as HTMLElement;
-      const rect = container.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const percent = x / rect.width;
-      
-      // Ensure percent is between 0 and 1
-      const clampedPercent = Math.max(0, Math.min(1, percent));
-      
-      // Calculate the seek time
-      const seekTime = this.duration * clampedPercent;
-      
-      // Seek in both Howler and WaveSurfer
-      this.sound.seek(seekTime);
-      
-      if (this.wavesurfer && this.isWaveformReady) {
-        try {
-          this.wavesurfer.seekTo(clampedPercent);
-        } catch (error) {
-          console.error('Error seeking in waveform:', error);
-        }
-      }
-      
-      this.currentTime = seekTime;
-      this.cdr.detectChanges();
-    } catch (error) {
-      console.error('Error in seekToPosition:', error);
-    }
-  }
-
-  formatTime(seconds: number): string {
-    if (!seconds || isNaN(seconds)) {
-      // If we have a track length from the API, use that for the duration display
-      if (this.track?.trackLengthSeconds && this.duration === 0) {
-        seconds = this.track.trackLengthSeconds;
-      } else {
-        return '0:00';
-      }
-    }
-    
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    // Seek to the clicked position
+    this.wavesurfer.seekTo(percent);
   }
 }
