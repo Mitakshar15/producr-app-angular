@@ -5,17 +5,19 @@
 }
 
 .hero-section {
-  text-align: center;
+ text-align: center;
   padding: 60px 20px;
-  background-color: #f5f5f5;
+  background: linear-gradient(135deg, #3F51B5, #607D8B); /* Subtle gradient background */
   border-radius: 8px;
   margin-bottom: 40px;
+  color: white; /* Ensure text is readable on the dark background */
 }
 
 .hero-content {
   max-width: 800px;
   margin: 0 auto;
 }
+
 
 h1 {
   font-size: 2.5em;
@@ -24,7 +26,7 @@ h1 {
 }
 
 .hero-subtitle {
-  font-size: 1.2em;
+  font-size: 1.3em; /* Slightly larger for emphasis */
   color: #666;
   margin-bottom: 30px;
 }
@@ -35,14 +37,40 @@ h1 {
   justify-content: center;
 }
 
+/* Styling for Material buttons in the hero section */
+.hero-buttons .mat-raised-button.mat-primary {
+  background-color: #FFC107; /* Use secondary color for primary action */
+  color: #212121; /* Dark text for contrast */
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.hero-buttons .mat-raised-button.mat-primary:hover {
+  background-color: #FFA000; /* Darker shade on hover */
+}
+
+.hero-buttons .mat-raised-button.mat-accent {
+  background-color: transparent; /* Transparent background */
+  color: white; /* White text for contrast */
+  border: 2px solid white; /* White border */
+  font-weight: bold;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.hero-buttons .mat-raised-button.mat-accent:hover {
+ background-color: rgba(255, 255, 255, 0.1); /* Subtle white background on hover */
+ color: white;
+}
+
 .features-section {
   padding: 40px 0;
 }
 
 .features-section h2 {
-  text-align: center;
+ text-align: center;
   margin-bottom: 40px;
   color: #333;
+  font-family: 'Montserrat', sans-serif; /* Apply heading font */
 }
 
 .features-grid {
@@ -57,14 +85,14 @@ h1 {
   padding: 30px;
   background-color: white;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slightly more pronounced shadow */
 }
 
 .feature-card mat-icon {
   font-size: 40px;
   height: 40px;
   width: 40px;
-  color: #3f51b5;
+  color: #FFC107; /* Use secondary color for icons */
   margin-bottom: 20px;
 }
 
@@ -73,13 +101,14 @@ h1 {
   color: #333;
 }
 
+
 .feature-card p {
-  color: #666;
+  color: #212121; /* Use text color for body */
 }
 
 .cta-section {
-  background-color: #3f51b5;
-  color: white;
+  background-color: #3F51B5; /* Use primary color for CTA background */
+  color: white; /* White text for contrast */
   padding: 60px 20px;
   border-radius: 8px;
   margin-top: 40px;
@@ -99,17 +128,42 @@ h1 {
   margin-bottom: 30px;
 }
 
+
 .cta-buttons {
   display: flex;
   gap: 20px;
   justify-content: center;
 }
 
+/* Styling for Material buttons in the CTA section */
+.cta-buttons .mat-raised-button.mat-primary {
+  background-color: #FFC107; /* Use secondary color for primary action */
+  color: #212121; /* Dark text for contrast */
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.cta-buttons .mat-raised-button.mat-primary:hover {
+  background-color: #FFA000; /* Darker shade on hover */
+}
+
+.cta-buttons .mat-button {
+  background-color: transparent; /* Transparent background */
+  color: white; /* White text for contrast */
+  border: 2px solid white; /* White border */
+  font-weight: bold;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.cta-buttons .mat-button:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle white background on hover */
+  color: white;
+}
+
 @media (max-width: 768px) {
   .features-grid {
     grid-template-columns: 1fr;
   }
-  
   .hero-buttons, .cta-buttons {
     flex-direction: column;
     align-items: center;

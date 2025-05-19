@@ -1,6 +1,7 @@
 .navbar {
   position: fixed;
   top: 0;
+  /* Remove left and right to allow for full width by default */
   left: 0;
   right: 0;
   z-index: 1000;
@@ -12,7 +13,7 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px; /* Slightly wider container */
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -23,61 +24,74 @@
 }
 
 .brand-link {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  color: white;
-  font-size: 1.5rem;
-  font-weight: 500;
+  /* Remove this class and style the direct link in .navbar-brand a */
 }
 
 .brand-link mat-icon {
-  margin-right: 8px;
+  /* Remove this class and style the direct icon in .navbar-brand a mat-icon */
 }
 
 .spacer {
   flex: 1 1 auto;
 }
 
+/* .nav-links is a duplicate of .navbar-links, remove it */
+/*
 .nav-links {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+ display: flex;
+ align-items: center;
+ gap: 16px;
 }
 
 .nav-links a {
-  text-decoration: none;
-  color: white;
+ text-decoration: none;
+ color: white;
 }
+*/
 
 .navbar-links {
   display: flex;
   align-items: center;
   gap: 16px;
+  font-family: 'Open Sans', sans-serif; /* Apply body font */
 }
 
 .navbar-links a {
   text-decoration: none;
-  color: white;
+  color: #212121; /* Text color */
+  transition: color 0.3s ease; /* Smooth hover transition */
+}
+
+.navbar-links a:hover {
+  color: #3F51B5; /* Primary color on hover */
+}
+
+.navbar-links .mat-raised-button {
+  background-color: #FFC107; /* Secondary color for accent button */
+  color: #212121; /* Text color for accent button */
+  font-weight: bold;
 }
 
 .navbar-brand a {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: white;
+  color: #212121; /* Text color */
+  font-family: 'Montserrat', sans-serif; /* Apply heading font */
 }
 
 .navbar-brand mat-icon {
   margin-right: 8px;
-  font-size: 24px;
-  height: 24px;
-  width: 24px;
+  font-size: 28px; /* Slightly larger icon */
+  height: 28px;
+  width: 28px;
+  color: #3F51B5; /* Primary color for icon */
 }
 
 .navbar-brand span {
-  font-size: 1.2rem;
+  font-size: 1.4rem; /* Slightly larger brand text */
   font-weight: 500;
+  color: #212121; /* Text color */
 }
 
 @media (max-width: 768px) {
@@ -95,4 +109,5 @@
     justify-content: center;
     gap: 8px;
   }
+  /* Add more specific responsive adjustments as needed */
 }
